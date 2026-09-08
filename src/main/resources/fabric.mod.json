@@ -3,29 +3,34 @@
 	"id": "racingminimap",
 	"version": "${version}",
 	"name": "Racing Minimap",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Minimap for boat racing on ice tracks.",
 	"authors": [
-		"Me!"
+		"NapsterNPT"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://napsternpt.github.io/",
+		"issues": "https://github.com/NapsterNPT/racing-minimap/issues",
+		"sources": "https://github.com/NapsterNPT/minimap"
 	},
-	"license": "CC0-1.0",
+	"license": "LGPL-3.0",
 	"icon": "assets/racingminimap/icon.png",
-	"environment": "*",
+	"environment": "client",
 	"entrypoints": {
-		"main": [
+		"client": [
 			"net.napsternpt.racingminimap.RacingMinimap"
+		],
+		"modmenu": [
+			"net.napsternpt.racingminimap.config.ModMenuIntegration"
 		]
 	},
-	"mixins": [
-		"racingminimap.mixins.json"
-	],
 	"depends": {
 		"fabricloader": ">=0.19.5",
 		"minecraft": "~1.21.4",
 		"java": ">=21",
-		"fabric-api": "*"
+		"fabric-api": "*",
+		"cloth-config2": ">=17.0.144"
+	},
+	"suggests": {
+		"modmenu": ">=13.0.0"
 	}
 }
