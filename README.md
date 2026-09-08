@@ -5,6 +5,8 @@
 
 A minimap for ice boat racing.
 
+Disclaimer: the original mod is [Boat HUD (from F1 2023)](https://modrinth.com/mod/boathud-f1). I only kept the minimap, optimized it and ported it to 1.21.4
+
 ## Features
 
 - **Live rotating map**
