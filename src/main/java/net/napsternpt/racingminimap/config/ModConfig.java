@@ -18,6 +18,9 @@ public class ModConfig implements ConfigData {
 	@ConfigEntry.BoundedDiscrete(min = 0, max = 100)
 	public int map_y = 0;
 
+	@ConfigEntry.BoundedDiscrete(min = 25, max = 100)
+	public int map_scale = 45;
+
 	@ConfigEntry.Gui.Tooltip(count = 2)
 	@ConfigEntry.BoundedDiscrete(min = 1, max = 32)
 	public int map_depth = 10;

@@ -5,8 +5,8 @@
     "text.autoconfig.racingminimap.option.render_out_of_boat": "Render Out of Boat",
     "text.autoconfig.racingminimap.option.map_x": "Offset Map on X Axis (%)",
     "text.autoconfig.racingminimap.option.map_y": "Offset Map on Y Axis (%)",
+    "text.autoconfig.racingminimap.option.map_scale": "Map Scale (%)",
     "text.autoconfig.racingminimap.option.map_depth": "Depth of the map",
-    "text.autoconfig.racingminimap.option.map_opacity": "Map Opacity",
 
 
     "text.autoconfig.racingminimap.option.map_depth.@Tooltip[0]": "This settings changes how many blocks should be rendered above and below the player.",

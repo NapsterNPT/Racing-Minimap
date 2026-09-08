@@ -4,12 +4,10 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
@@ -17,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MapHelper {
+	private static final BlockPos.Mutable mutablePos = new BlockPos.Mutable();
+
 	private static boolean isIceBlock(BlockState state) {
 		return state.isOf(Blocks.ICE) || state.isOf(Blocks.PACKED_ICE) || state.isOf(Blocks.BLUE_ICE);
 	}
@@ -26,119 +26,52 @@ public class MapHelper {
 		RacingMinimap.image.setColorArgb(px, py, alpha << 24);
 	}
 
-	private static boolean isTransparent(World world, BlockState state, BlockPos pos) {
-		for (Direction direction : Direction.values()) {
-			if (!state.isSideSolidFullSquare(world, pos, direction) || state.isOf(Blocks.WATER)) {
-				continue;
-			}
-			return false;
-		}
-		return true;
-	}
-
-	public static List<PlayerEntity> getPlayersInBoats() {
-		List<PlayerEntity> playersInBoats = new ArrayList<>();
-		MinecraftClient client = MinecraftClient.getInstance();
-		if (client == null || client.world == null) {
-			return playersInBoats;
-		}
-		for (PlayerEntity player : client.world.getPlayers()) {
-			if (player == client.player) {
-				continue;
-			}
-			Entity vehicle = player.getVehicle();
-			if (!(vehicle instanceof BoatEntity boat)) {
-				continue;
-			}
-			if (boat.getControllingPassenger() == player) {
-				playersInBoats.add(player);
-			}
-		}
-		return playersInBoats;
+	private static boolean isTransparent(World world, BlockState state) {
+		return !state.isOpaque() && !state.isOf(Blocks.WATER);
 	}
 
 	public static void updateTexture(MinecraftClient client) {
 		add_shadows_minimap(client);
-		round_minimap(client);
+		applyCircularMask(RacingMinimap.rounded_image, client);
 		RacingMinimap.texture.upload();
 	}
 
 	public static void updatePlayers(MinecraftClient client) {
 		renderPlayers();
-		round_minimap_players(client);
+		applyCircularMask(RacingMinimap.image_with_players, client);
 		RacingMinimap.players_texture.upload();
 	}
 
 	private static void paintPlayer(int spriteX, int spriteZ, int stroke_color, int base_color, int detail_color) {
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 2, spriteZ - 4, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 1, spriteZ - 4, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX, spriteZ - 4, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 1, spriteZ - 4, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 2, spriteZ - 4, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 2, spriteZ - 3, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 1, spriteZ - 3, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX, spriteZ - 3, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 1, spriteZ - 3, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 2, spriteZ - 3, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 4, spriteZ - 2, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 3, spriteZ - 2, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 2, spriteZ - 2, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 1, spriteZ - 2, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX, spriteZ - 2, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 1, spriteZ - 2, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 2, spriteZ - 2, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 3, spriteZ - 2, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 4, spriteZ - 2, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 4, spriteZ - 1, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 3, spriteZ - 1, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 2, spriteZ - 1, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 1, spriteZ - 1, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX, spriteZ - 1, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 1, spriteZ - 1, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 2, spriteZ - 1, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 3, spriteZ - 1, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 4, spriteZ - 1, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 4, spriteZ, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 3, spriteZ, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 2, spriteZ, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 1, spriteZ, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX, spriteZ, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 1, spriteZ, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 2, spriteZ, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 3, spriteZ, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 4, spriteZ, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 4, spriteZ + 1, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 3, spriteZ + 1, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 2, spriteZ + 1, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 1, spriteZ + 1, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX, spriteZ + 1, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 1, spriteZ + 1, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 2, spriteZ + 1, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 3, spriteZ + 1, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 4, spriteZ + 1, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 4, spriteZ + 2, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 3, spriteZ + 2, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 2, spriteZ + 2, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 1, spriteZ + 2, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX, spriteZ + 2, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 1, spriteZ + 2, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 2, spriteZ + 2, base_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 3, spriteZ + 2, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 4, spriteZ + 2, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 2, spriteZ + 3, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 1, spriteZ + 3, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX, spriteZ + 3, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 1, spriteZ + 3, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 2, spriteZ + 3, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 2, spriteZ + 4, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX - 1, spriteZ + 4, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX, spriteZ + 4, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 1, spriteZ + 4, stroke_color);
-		RacingMinimap.image_with_players.setColorArgb( spriteX + 2, spriteZ + 4, stroke_color);
+		int width = RacingMinimap.image_with_players.getWidth();
+		int height = RacingMinimap.image_with_players.getHeight();
+		for (int dy = -4; dy <= 4; ++dy) {
+			int halfWidth = (dy <= -3 || dy >= 3) ? 2 : 4;
+			for (int dx = -halfWidth; dx <= halfWidth; ++dx) {
+				int x = spriteX + dx;
+				int y = spriteZ + dy;
+				if (x < 0 || x >= width || y < 0 || y >= height) {
+					continue;
+				}
+				int color = (Math.abs(dx) >= halfWidth - 1 || Math.abs(dy) >= 3) ? stroke_color : base_color;
+				RacingMinimap.image_with_players.setColorArgb(x, y, color);
+			}
+		}
 	}
 
 	private static void renderPlayers() {
-		List<PlayerEntity> playersInBoats = getPlayersInBoats();
+		List<PlayerEntity> playersInBoats = new ArrayList<>();
+		MinecraftClient client = MinecraftClient.getInstance();
+		if (client.world != null) {
+			for (PlayerEntity player : client.world.getPlayers()) {
+				if (player == client.player) {
+					continue;
+				}
+				if (player.getVehicle() instanceof BoatEntity boat && boat.getControllingPassenger() == player) {
+					playersInBoats.add(player);
+				}
+			}
+		}
 		int width = RacingMinimap.image_with_players.getWidth();
 		int height = RacingMinimap.image_with_players.getHeight();
 		for (int y = 0; y < height; ++y) {
@@ -146,10 +79,12 @@ public class MapHelper {
 				RacingMinimap.image_with_players.setColorArgb(x, y, 0);
 			}
 		}
-		int chunkX_min = RacingMinimap.mapBlockPos.getX() + 10;
-		int chunkX_max = RacingMinimap.mapBlockPos.getX() + 230;
-		int chunkZ_min = RacingMinimap.mapBlockPos.getZ() + 10;
-		int chunkZ_max = RacingMinimap.mapBlockPos.getZ() + 230;
+		int mapX = RacingMinimap.mapBlockPos.getX();
+		int mapZ = RacingMinimap.mapBlockPos.getZ();
+		int chunkX_min = mapX + 10;
+		int chunkX_max = mapX + 230;
+		int chunkZ_min = mapZ + 10;
+		int chunkZ_max = mapZ + 230;
 		for (PlayerEntity player : playersInBoats) {
 			int playerX = player.getBlockPos().getX();
 			int playerZ = player.getBlockPos().getZ();
@@ -158,22 +93,12 @@ public class MapHelper {
 			}
 			int spriteX = playerX - chunkX_min + 10;
 			int spriteZ = playerZ - chunkZ_min + 10;
-			String base_color = RacingMinimap.team_colors.get(player.getName().getString());
-			int base_color_int;
-			try {
-				base_color_int = base_color != null ? 0xFF000000 | Integer.parseInt(base_color.substring(1), 16) : 0xFFFF0000;
-			} catch (NumberFormatException e) {
-				base_color_int = 0xFFFF0000;
-			}
+			int base_color_int = 0xFFFF0000;
 			int r = base_color_int >> 16 & 0xFF;
-			int g = base_color_int >> 8 & 0xFF;
-			int b = base_color_int & 0xFF;
-			int r1 = (int) (r * 0.7);
-			int g1 = (int) (g * 0.7);
-			int b1 = (int) (b * 0.7);
-			int stroke_color = 0xFF000000 | r1 << 16 | g1 << 8 | b1;
-			base_color_int = 0xFF000000 | r << 16 | g << 8 | b;
-			paintPlayer(spriteX, spriteZ, stroke_color, base_color_int, base_color_int);
+            int r1 = (int) (r * 0.7);
+            int b1 = 0;
+			int stroke_color = 0xFF000000 | r1 << 16 | b1;
+            paintPlayer(spriteX, spriteZ, stroke_color, base_color_int, base_color_int);
 		}
 	}
 
@@ -185,8 +110,9 @@ public class MapHelper {
 		int startX = targetChunkPos.getStartX();
 		int startZ = targetChunkPos.getStartZ();
 		int playerY = playerPos.getY();
-		ChunkPos newChunkPos = new ChunkPos(targetChunkPos.x - RacingMinimap.chunkLength, targetChunkPos.z - RacingMinimap.chunkLength);
-		RacingMinimap.mapBlockPos = new BlockPos(newChunkPos.getStartX(), 0, newChunkPos.getStartZ());
+		int originX = (targetChunkPos.x - RacingMinimap.chunkLength) * 16;
+		int originZ = (targetChunkPos.z - RacingMinimap.chunkLength) * 16;
+		RacingMinimap.mapBlockPos = new BlockPos(originX, 0, originZ);
 		for (int chunkX = -RacingMinimap.chunkLength; chunkX <= RacingMinimap.chunkLength; ++chunkX) {
 			for (int chunkZ = -RacingMinimap.chunkLength; chunkZ <= RacingMinimap.chunkLength; ++chunkZ) {
 				boolean foundIceBlockInSquare = true;
@@ -210,8 +136,9 @@ public class MapHelper {
 		int startX = targetChunkPos.getStartX();
 		int startZ = targetChunkPos.getStartZ();
 		int playerY = playerPos.getY();
-		ChunkPos newChunkPos = new ChunkPos(targetChunkPos.x - RacingMinimap.chunkLength, targetChunkPos.z - RacingMinimap.chunkLength);
-		RacingMinimap.mapBlockPos = new BlockPos(newChunkPos.getStartX(), 0, newChunkPos.getStartZ());
+		int originX = (targetChunkPos.x - RacingMinimap.chunkLength) * 16;
+		int originZ = (targetChunkPos.z - RacingMinimap.chunkLength) * 16;
+		RacingMinimap.mapBlockPos = new BlockPos(originX, 0, originZ);
 		for (int chunkX = -RacingMinimap.chunkLength; chunkX <= RacingMinimap.chunkLength; ++chunkX) {
 			for (int chunkZ = -RacingMinimap.chunkLength; chunkZ <= RacingMinimap.chunkLength; ++chunkZ) {
 				boolean foundIceBlockInSquare = true;
@@ -247,9 +174,10 @@ public class MapHelper {
 				RacingMinimap.rounded_image.setColorArgb(x, y, color);
 			}
 		}
+		float radiusSq = radius * radius;
 		for (int y = 0; y < height; ++y) {
 			for (int x = 0; x < width; ++x) {
-				int color = RacingMinimap.rounded_image.getColorArgb(x, y);
+				int color = RacingMinimap.image.getColorArgb(x, y);
 				int color_alpha = color >> 24 & 0xFF;
 				int color_without_alpha = color & 0xFFFFFF;
 				if (color_without_alpha != 0) {
@@ -265,7 +193,7 @@ public class MapHelper {
 						int distanceX = nx - centerX;
 						int distanceY = ny - centerY;
 						float distanceSquared = distanceX * distanceX + distanceY * distanceY;
-						if (distanceSquared > radius * radius) {
+						if (distanceSquared > radiusSq) {
 							continue;
 						}
 						int new_color = RacingMinimap.rounded_image.getColorArgb(nx, ny);
@@ -281,9 +209,9 @@ public class MapHelper {
 		}
 	}
 
-	private static void round_minimap(MinecraftClient client) {
-		int width = RacingMinimap.rounded_image.getWidth();
-		int height = RacingMinimap.rounded_image.getHeight();
+	private static void applyCircularMask(net.minecraft.client.texture.NativeImage image, MinecraftClient client) {
+		int width = image.getWidth();
+		int height = image.getHeight();
 		if (client.player == null) {
 			return;
 		}
@@ -295,80 +223,56 @@ public class MapHelper {
 		int centerY = height / 2 - 8 + (int) chunkOffsetZ;
 		float innerRadius = 38.0f / MinimapRenderer.scale;
 		float outerRadius = 45.0f / MinimapRenderer.scale;
+		float innerRadiusSq = innerRadius * innerRadius;
+		float outerRadiusSq = outerRadius * outerRadius;
+		float fadeRange = outerRadius - innerRadius;
 		for (int y = 0; y < height; ++y) {
 			for (int x = 0; x < width; ++x) {
 				int dx = x - centerX;
 				int dy = y - centerY;
 				float distanceSquared = dx * dx + dy * dy;
-				if (distanceSquared <= innerRadius * innerRadius) {
+				if (distanceSquared <= innerRadiusSq) {
 					continue;
 				}
-				if (distanceSquared <= outerRadius * outerRadius) {
-					int color = RacingMinimap.rounded_image.getColorArgb(x, y);
+				if (distanceSquared <= outerRadiusSq) {
+					int color = image.getColorArgb(x, y);
 					int alpha = color >> 24 & 0xFF;
 					float distance = (float) Math.sqrt(distanceSquared);
-					int transparencyFactor = (int) ((distance - innerRadius) / (outerRadius - innerRadius) * 255.0f);
+					int transparencyFactor = (int) ((distance - innerRadius) / fadeRange * 255.0f);
 					int newAlpha = MathHelper.clamp(alpha - transparencyFactor, 0, 255);
-					RacingMinimap.rounded_image.setColorArgb(x, y, newAlpha << 24 | color & 0xFFFFFF);
+					image.setColorArgb(x, y, newAlpha << 24 | color & 0xFFFFFF);
 					continue;
 				}
-				RacingMinimap.rounded_image.setColorArgb(x, y, 0);
-			}
-		}
-	}
-
-	private static void round_minimap_players(MinecraftClient client) {
-		int width = RacingMinimap.image_with_players.getWidth();
-		int height = RacingMinimap.image_with_players.getHeight();
-		if (client.player == null) {
-			return;
-		}
-		double playerX = client.player.getX();
-		double playerZ = client.player.getZ();
-		double chunkOffsetX = (playerX % 16.0 + 16.0) % 16.0;
-		double chunkOffsetZ = (playerZ % 16.0 + 16.0) % 16.0;
-		int centerX = width / 2 - 8 + (int) chunkOffsetX;
-		int centerY = height / 2 - 8 + (int) chunkOffsetZ;
-		float innerRadius = 38.0f / MinimapRenderer.scale;
-		float outerRadius = 45.0f / MinimapRenderer.scale;
-		for (int y = 0; y < height; ++y) {
-			for (int x = 0; x < width; ++x) {
-				int dx = x - centerX;
-				int dy = y - centerY;
-				float distanceSquared = dx * dx + dy * dy;
-				if (distanceSquared <= innerRadius * innerRadius) {
-					continue;
-				}
-				if (distanceSquared <= outerRadius * outerRadius) {
-					int color = RacingMinimap.image_with_players.getColorArgb(x, y);
-					int alpha = color >> 24 & 0xFF;
-					float distance = (float) Math.sqrt(distanceSquared);
-					int transparencyFactor = (int) ((distance - innerRadius) / (outerRadius - innerRadius) * 255.0f);
-					int newAlpha = MathHelper.clamp(alpha - transparencyFactor, 0, 255);
-					RacingMinimap.image_with_players.setColorArgb(x, y, newAlpha << 24 | color & 0xFFFFFF);
-					continue;
-				}
-				RacingMinimap.image_with_players.setColorArgb(x, y, 0);
+				image.setColorArgb(x, y, 0);
 			}
 		}
 	}
 
 	private static boolean analyzeXZ(World world, int x, int z, int playerY, int px, int py) {
 		boolean foundIceBlock = false;
-		BlockState surfaceState = world.getBlockState(new BlockPos(x, playerY, z));
-		if (isIceBlock(surfaceState)
-				&& isTransparent(world, world.getBlockState(new BlockPos(x, playerY + 1, z)), new BlockPos(x, playerY + 1, z))) {
-			paintIce(px, py, 0, 0);
-			foundIceBlock = true;
-		}
 		int map_depth = RacingMinimap.CONFIG.map_depth;
 		int color_change = (int) Math.ceil(255.0 / map_depth);
+
+		mutablePos.set(x, playerY, z);
+		BlockState surfaceState = world.getBlockState(mutablePos);
+		if (isIceBlock(surfaceState)) {
+			mutablePos.set(x, playerY + 1, z);
+			if (isTransparent(world, world.getBlockState(mutablePos))) {
+				paintIce(px, py, 0, 0);
+				foundIceBlock = true;
+			}
+		}
+
 		if (!foundIceBlock) {
 			for (int dy = 1; dy <= map_depth; ++dy) {
 				int currentY = playerY - dy;
-				BlockState foundState = world.getBlockState(new BlockPos(x, currentY, z));
-				if (!isIceBlock(foundState)
-						|| !isTransparent(world, world.getBlockState(new BlockPos(x, currentY + 1, z)), new BlockPos(x, currentY + 1, z))) {
+				mutablePos.set(x, currentY, z);
+				BlockState foundState = world.getBlockState(mutablePos);
+				if (!isIceBlock(foundState)) {
+					continue;
+				}
+				mutablePos.set(x, currentY + 1, z);
+				if (!isTransparent(world, world.getBlockState(mutablePos))) {
 					continue;
 				}
 				paintIce(px, py, dy, color_change);
@@ -376,12 +280,17 @@ public class MapHelper {
 				break;
 			}
 		}
+
 		if (!foundIceBlock) {
 			for (int dy = 1; dy <= map_depth; ++dy) {
 				int currentY = playerY + dy;
-				BlockState foundState = world.getBlockState(new BlockPos(x, currentY, z));
-				if (!isIceBlock(foundState)
-						|| !isTransparent(world, world.getBlockState(new BlockPos(x, currentY + 1, z)), new BlockPos(x, currentY + 1, z))) {
+				mutablePos.set(x, currentY, z);
+				BlockState foundState = world.getBlockState(mutablePos);
+				if (!isIceBlock(foundState)) {
+					continue;
+				}
+				mutablePos.set(x, currentY + 1, z);
+				if (!isTransparent(world, world.getBlockState(mutablePos))) {
 					continue;
 				}
 				paintIce(px, py, dy, color_change);
@@ -389,6 +298,7 @@ public class MapHelper {
 				break;
 			}
 		}
+
 		if (!foundIceBlock) {
 			RacingMinimap.image.setColorArgb(px, py, 0);
 		}
@@ -448,5 +358,4 @@ public class MapHelper {
 			paintEmptyXZ(px2, py);
 		}
 	}
-
-	}
+}
