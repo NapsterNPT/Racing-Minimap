@@ -19,7 +19,7 @@ jobs:
         run: |
           DESCRIPTION=$(jq -Rs . < README.md)
 
-          curl -X PATCH "https://api.modrinth.com/v2/project/prixilium" \
+          curl -X PATCH "https://api.modrinth.com/v2/project/recingminimap" \
             -H "Authorization: $MODRINTH_TOKEN" \
             -H "Content-Type: application/json" \
             -d "{\"body\": $DESCRIPTION}"
