@@ -5,7 +5,7 @@
 
 A minimap for ice boat racing.
 
-Disclaimer: the original mod is [Boat HUD (from F1 2023)](https://modrinth.com/mod/boathud-f1). I only kept the minimap, optimized it and ported it to 1.21.4
+Disclaimer: the original mod is [Boat HUD (from F1 2023)](https://modrinth.com/mod/boathud-f1). I only kept the minimap, optimized it and ported it to 1.21.4 and other stuff.
 
 ## Features
 
@@ -18,3 +18,7 @@ Disclaimer: the original mod is [Boat HUD (from F1 2023)](https://modrinth.com/m
 
 - **OBU support**
 - **BoatLabs color support**
+
+You can download the mod from [Modrinth](https://modrinth.com/mod/racing-minimap) or the [GitHub Repository](https://github.com/NapsterNPT/racing-minimap/releases/); any other source will be marked as unofficial.
+
+If you want to see the source code or report an issue [Click Here](https://github.com/NapsterNPT/racing-minimap/issues).
