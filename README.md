@@ -1,34 +1,18 @@
 # Racing Minimap
 
-A minimap for Minecraft boat racing on ice tracks. While riding a boat it shows
-a live, rotating map of the ice track around you and marks the other racers
-(boat drivers) on it.
+![Downloads](https://img.shields.io/modrinth/dt/racing-minimap?style=for-the-badge&color=orange&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjZTNlM2UzIj48cGF0aCBkPSJNNDgwLTMyMCAyODAtNTIwbDU2LTU4IDEwNCAxMDR2LTMyNmg4MHYzMjZsMTA0LTEwNCA1NiA1OC0yMDAgMjAwWk0yNDAtMTYwcS0zMyAwLTU2LjUtMjMuNVQxNjAtMjQwdi0xMjBoODB2MTIwaDQ4MHYtMTIwaDgwdjEyMHEwIDMzLTIzLjUgNTYuNVQ3MjAtMTYwSDI0MFoiLz48L3N2Zz4=)
+![Release](https://img.shields.io/github/v/release/NapsterNPT/racing-minimap?style=for-the-badge&color=orange&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjZTNlM2UzIj48cGF0aCBkPSJNMzUyLjUtMzI1LjVRMjk4LTM3MSAyODQtNDQwSDgwdi04MGgyMDRxMTQtNjkgNjguNS0xMTQuNVQ0ODAtNjgwcTczIDAgMTI3LjUgNDUuNVQ2NzYtNTIwaDIwNHY4MEg2NzZxLTE0IDY5LTY4LjUgMTE0LjVUNDgwLTI4MHEtNzMgMC0xMjcuNS00NS41Wk00ODAtMzYwcTUwIDAgODUtMzV0MzUtODVxMC01MC0zNS04NXQtODUtMzVxLTUwIDAtODUgMzV0LTM1IDg1cTAgNTAgMzUgODV0ODUgMzVaIi8+PC9zdmc+)
 
-This mod is a 1.21.4 port of the minimap from
-[BoatHud (F1 2023)](https://modrinth.com/mod/boathud-f1) by jewtvet (MIT),
-with everything else (speedometer, leaderboard, race status, broadcast mode,
-default-HUD overrides, mixins) stripped out.
+A minimap for ice boat racing.
 
 ## Features
 
-- Realtime ice-track minimap while riding a boat, generated from the world.
-- Rounded, semi-transparent map that rotates to match your view direction.
-- Other boat drivers shown as red markers.
-- Configurable position (X/Y) and track depth via Mod Menu (Cloth Config).
-  The map scans the area around the player on the chosen Y-level to show the
-  track even when it is hidden under other blocks; deeper blocks appear dimmer.
+- **Live rotating map**
+- **Ice block detection**
+- **Player markers**
+- **Configurable**
 
-## Requirements
+## Future stuff
 
-- Fabric Loader
-- Fabric API
-- Cloth Config (optional at runtime, needed for the config screen)
-- Mod Menu (optional, provides the config screen entrypoint)
-
-## Building
-
-```sh
-./gradlew build
-```
-
-The built jar is in `build/libs/`.
+- **OBU support**
+- **BoatLabs color support**
