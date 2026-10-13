@@ -1,6 +1,8 @@
 package net.napsternpt.racingminimap;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
@@ -38,11 +40,11 @@ public class MinimapRenderer {
 				if ((RacingMinimap.render_distance & 1) == 0) {
 					--RacingMinimap.render_distance;
 				}
-				RacingMinimap.image = new net.minecraft.client.texture.NativeImage(RacingMinimap.render_distance * 16, RacingMinimap.render_distance * 16, false);
-				RacingMinimap.image_with_players = new net.minecraft.client.texture.NativeImage(RacingMinimap.render_distance * 16, RacingMinimap.render_distance * 16, false);
-				RacingMinimap.rounded_image = new net.minecraft.client.texture.NativeImage(RacingMinimap.render_distance * 16, RacingMinimap.render_distance * 16, false);
-				RacingMinimap.texture = new net.minecraft.client.texture.NativeImageBackedTexture(RacingMinimap.rounded_image);
-				RacingMinimap.players_texture = new net.minecraft.client.texture.NativeImageBackedTexture(RacingMinimap.image_with_players);
+				RacingMinimap.image = new NativeImage(RacingMinimap.render_distance * 16, RacingMinimap.render_distance * 16, false);
+				RacingMinimap.image_with_players = new NativeImage(RacingMinimap.render_distance * 16, RacingMinimap.render_distance * 16, false);
+				RacingMinimap.rounded_image = new NativeImage(RacingMinimap.render_distance * 16, RacingMinimap.render_distance * 16, false);
+				RacingMinimap.texture = new NativeImageBackedTexture(RacingMinimap.rounded_image);
+				RacingMinimap.players_texture = new NativeImageBackedTexture(RacingMinimap.image_with_players);
 				RacingMinimap.MINIMAP_TEXTURE = Identifier.of(RacingMinimap.MOD_ID, "textures/minimap");
 				RacingMinimap.MINIMAP_PLAYERS = Identifier.of(RacingMinimap.MOD_ID, "textures/minimap_players");
 				client.getTextureManager().registerTexture(RacingMinimap.MINIMAP_TEXTURE, RacingMinimap.texture);

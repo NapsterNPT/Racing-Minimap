@@ -7,6 +7,8 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -20,11 +22,11 @@ public class RacingMinimap implements ClientModInitializer {
 
 	public static ModConfig CONFIG;
 
-	public static net.minecraft.client.texture.NativeImage image;
-	public static net.minecraft.client.texture.NativeImage image_with_players;
-	public static net.minecraft.client.texture.NativeImage rounded_image;
-	public static net.minecraft.client.texture.NativeImageBackedTexture texture;
-	public static net.minecraft.client.texture.NativeImageBackedTexture players_texture;
+	public static NativeImage image;
+	public static NativeImage image_with_players;
+	public static NativeImage rounded_image;
+	public static NativeImageBackedTexture texture;
+	public static NativeImageBackedTexture players_texture;
 	public static Identifier MINIMAP_TEXTURE;
 	public static Identifier MINIMAP_PLAYERS;
 	public static int render_distance = 15;

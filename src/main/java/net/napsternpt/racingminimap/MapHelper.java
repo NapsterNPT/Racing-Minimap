@@ -3,6 +3,7 @@ package net.napsternpt.racingminimap;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
@@ -209,7 +210,7 @@ public class MapHelper {
 		}
 	}
 
-	private static void applyCircularMask(net.minecraft.client.texture.NativeImage image, MinecraftClient client) {
+	private static void applyCircularMask(NativeImage image, MinecraftClient client) {
 		int width = image.getWidth();
 		int height = image.getHeight();
 		if (client.player == null) {

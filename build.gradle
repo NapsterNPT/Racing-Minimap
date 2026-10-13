@@ -3,6 +3,13 @@ plugins {
 	id 'maven-publish'
 }
 
+version = "${project.mod_version}-${project.minecraft_version}"
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
 repositories {
 	maven { url "https://maven.shedaniel.me/" }
 	maven { url "https://maven.terraformersmc.com/releases/" }
@@ -21,11 +28,20 @@ dependencies {
 }
 
 processResources {
-	def version = project.version
 	inputs.property "version", version
+	inputs.property "minecraft_version", project.minecraft_version
 
 	filesMatching("fabric.mod.json") {
-		expand "version": version
+		expand "version": project.mod_version,
+				"minecraft_version": project.minecraft_version,
+				"cloth_config_version": project.cloth_config_version
+	}
+}
+
+loom {
+	runConfigs.all {
+		ideConfigGenerated true
+		runDir "../../run"
 	}
 }
 
