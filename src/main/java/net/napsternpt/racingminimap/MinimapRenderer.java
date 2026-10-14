@@ -7,15 +7,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
 //? if >=1.21.5 {
-/*import net.minecraft.client.gl.RenderPipelines;
-*///?}
+import net.minecraft.client.gl.RenderPipelines;
+//?}
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ChunkPos;
 
 //? if >=1.21.5 {
-/*import org.joml.Matrix3x2fStack;
-*///?}
+import org.joml.Matrix3x2fStack;
+//?}
 import org.joml.Quaternionf;
 
 public class MinimapRenderer {
@@ -39,9 +39,9 @@ public class MinimapRenderer {
 		int scaledHeight = client.getWindow().getScaledHeight();
 
 		//? if <1.21.5 {
-		RenderSystem.enableBlend();
+		/*RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
-		//?}
+		*///?}
 
 		if (client.player != null) {
 			if (!RacingMinimap.isMinimapLoaded) {
@@ -52,12 +52,12 @@ public class MinimapRenderer {
 				RacingMinimap.image_with_players = new NativeImage(RacingMinimap.render_distance * 16, RacingMinimap.render_distance * 16, false);
 				RacingMinimap.rounded_image = new NativeImage(RacingMinimap.render_distance * 16, RacingMinimap.render_distance * 16, false);
 				//? if >=1.21.5 {
-				/*RacingMinimap.texture = new NativeImageBackedTexture(() -> "racingminimap_minimap", RacingMinimap.rounded_image);
+				RacingMinimap.texture = new NativeImageBackedTexture(() -> "racingminimap_minimap", RacingMinimap.rounded_image);
 				RacingMinimap.players_texture = new NativeImageBackedTexture(() -> "racingminimap_players", RacingMinimap.image_with_players);
-				*///?} else {
-				RacingMinimap.texture = new NativeImageBackedTexture(RacingMinimap.rounded_image);
+				//?} else {
+				/*RacingMinimap.texture = new NativeImageBackedTexture(RacingMinimap.rounded_image);
 				RacingMinimap.players_texture = new NativeImageBackedTexture(RacingMinimap.image_with_players);
-				//?}
+				*///?}
 				RacingMinimap.MINIMAP_TEXTURE = Identifier.of(RacingMinimap.MOD_ID, "textures/minimap");
 				RacingMinimap.MINIMAP_PLAYERS = Identifier.of(RacingMinimap.MOD_ID, "textures/minimap_players");
 				client.getTextureManager().registerTexture(RacingMinimap.MINIMAP_TEXTURE, RacingMinimap.texture);
@@ -102,27 +102,27 @@ public class MinimapRenderer {
 			renderMap(graphics, map_x + 49.5, map_y + 49.5, (float) Math.toRadians(client.player.getYaw() * -1.0f + 180.0f), chunkOffsetX, chunkOffsetZ);
 		}
 		//? if <1.21.5 {
-		RenderSystem.disableBlend();
-		//?}
+		/*RenderSystem.disableBlend();
+		*///?}
 	}
 
 	private static void renderMap(DrawContext graphics, double center_x, double center_y,
 								  float angle_map, double chunkOffsetX, double chunkOffsetZ) {
 		//? if >=1.21.5 {
-		/*Matrix3x2fStack matrices = graphics.getMatrices();
-		*///?} else {
-		MatrixStack matrices = graphics.getMatrices();
-		//?}
+		Matrix3x2fStack matrices = graphics.getMatrices();
+		//?} else {
+		/*MatrixStack matrices = graphics.getMatrices();
+		*///?}
 		if (RacingMinimap.texture != null && RacingMinimap.texture.getImage() != null) {
 			//? if >=1.21.5 {
-			/*matrices.pushMatrix();
+			matrices.pushMatrix();
 			matrices.translate((float) center_x, (float) center_y);
 			matrices.scale(scale, scale);
-			*///?} else {
-			matrices.push();
+			//?} else {
+			/*matrices.push();
 			matrices.translate(center_x, center_y, 0.0);
 			matrices.scale(scale, scale, 1.0f);
-			//?}
+			*///?}
 			float delta = angle_map - previousAngleMap;
 			delta = (delta + (float) Math.PI) % (float) (2.0 * Math.PI);
 			if (delta < 0.0f) {
@@ -132,48 +132,54 @@ public class MinimapRenderer {
 			float interpolatedAngle = previousAngleMap + delta * 0.5f;
 			previousAngleMap = interpolatedAngle;
 			//? if >=1.21.5 {
-			/*matrices.rotate(interpolatedAngle);
+			matrices.rotate(interpolatedAngle);
 			matrices.translate((float) (-chunkOffsetX + 8.0), (float) (-chunkOffsetZ + 8.0));
 			matrices.translate((float) -center_x, (float) -center_y);
-			*///?} else {
-			rotation.set(0, 0, 0, 1).rotateZ(interpolatedAngle);
+			//?} else {
+			/*rotation.set(0, 0, 0, 1).rotateZ(interpolatedAngle);
 			matrices.multiply(rotation);
 			matrices.translate(-chunkOffsetX + 8.0, -chunkOffsetZ + 8.0, 0.0);
 			matrices.translate(-center_x, -center_y, 0.0);
-			//?}
+			*///?}
 
 			int texSize = RacingMinimap.render_distance * 16;
 			int texOffset = RacingMinimap.render_distance * 8;
-			//? if <1.21.5 {
-			RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-			//?}
+			float opacity = RacingMinimap.CONFIG.map_opacity / 100.0f;
+			int hudColor = (Math.round(opacity * 255.0f) << 24) | 0xFFFFFF;
+			//? if <1.21.2 {
+			/*RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, opacity);
+			*///?}
 			drawGuiTexture(graphics, RacingMinimap.MINIMAP_TEXTURE,
 					(int) (center_x - texOffset), (int) (center_y - texOffset),
-					0.0f, 0.0f, texSize, texSize, texSize, texSize);
+					0.0f, 0.0f, texSize, texSize, texSize, texSize, hudColor);
 			if (RacingMinimap.players_texture != null && RacingMinimap.players_texture.getImage() != null) {
 				drawGuiTexture(graphics, RacingMinimap.MINIMAP_PLAYERS,
 						(int) (center_x - texOffset), (int) (center_y - texOffset),
-						0.0f, 0.0f, texSize, texSize, texSize, texSize);
+						0.0f, 0.0f, texSize, texSize, texSize, texSize, hudColor);
 			}
 			//? if >=1.21.5 {
-			/*matrices.popMatrix();
-			*///?} else {
-			matrices.pop();
-			//?}
+			matrices.popMatrix();
+			//?} else {
+			/*matrices.pop();
+			*///?}
 		}
-		//? if <1.21.5 {
-		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-		//?}
-		drawGuiTexture(graphics, POINTER_TEXTURE, MinimapRenderer.pointer_map[0], MinimapRenderer.pointer_map[1], 0.0f, 0.0f, MinimapRenderer.pointer_map[2], MinimapRenderer.pointer_map[3], POINTER_WIDTH, POINTER_HEIGHT);
+		//? if <1.21.2 {
+		/*RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, RacingMinimap.CONFIG.map_opacity / 100.0f);
+		*///?}
+		int pointerColor = (Math.round(RacingMinimap.CONFIG.map_opacity / 100.0f * 255.0f) << 24) | 0xFFFFFF;
+		drawGuiTexture(graphics, POINTER_TEXTURE, MinimapRenderer.pointer_map[0], MinimapRenderer.pointer_map[1], 0.0f, 0.0f, MinimapRenderer.pointer_map[2], MinimapRenderer.pointer_map[3], POINTER_WIDTH, POINTER_HEIGHT, pointerColor);
+		//? if <1.21.2 {
+		/*RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+		*///?}
 	}
 
-	private static void drawGuiTexture(DrawContext graphics, Identifier texture, int x, int y, float u, float v, int width, int height, int textureWidth, int textureHeight) {
+	private static void drawGuiTexture(DrawContext graphics, Identifier texture, int x, int y, float u, float v, int width, int height, int textureWidth, int textureHeight, int color) {
 		//? if <1.21.2 {
 		/*graphics.drawTexture(texture, x, y, u, v, width, height, textureWidth, textureHeight);
 		*///?} elif <1.21.5 {
-		graphics.drawTexture(RenderLayer::getGuiTextured, texture, x, y, u, v, width, height, textureWidth, textureHeight);
-		//?} else {
-		/*graphics.drawTexture(RenderPipelines.GUI_TEXTURED, texture, x, y, u, v, width, height, textureWidth, textureHeight);
-		*///?}
+		/*graphics.drawTexture(RenderLayer::getGuiTextured, texture, x, y, u, v, width, height, textureWidth, textureHeight, color);
+		*///?} else {
+		graphics.drawTexture(RenderPipelines.GUI_TEXTURED, texture, x, y, u, v, width, height, textureWidth, textureHeight, color);
+		//?}
 	}
 }

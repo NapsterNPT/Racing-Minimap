@@ -21,6 +21,15 @@ public class ModConfig implements ConfigData {
 	@ConfigEntry.BoundedDiscrete(min = 25, max = 100)
 	public int map_scale = 45;
 
+	@ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+	public int map_opacity = 100;
+
+	@ConfigEntry.ColorPicker()
+	public int main_color = 0x1E1E1E;
+
+	@ConfigEntry.ColorPicker()
+	public int outline_color = 0xFFFFFF;
+
 	@ConfigEntry.Gui.Tooltip(count = 2)
 	@ConfigEntry.BoundedDiscrete(min = 1, max = 32)
 	public int map_depth = 10;

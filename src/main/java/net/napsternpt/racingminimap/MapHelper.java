@@ -20,7 +20,7 @@ public class MapHelper {
 
 	private static int getArgb(NativeImage image, int x, int y) {
 		//? if <1.21.2 {
-		/*return image.getColor(x, y);
+		/*return swapRedBlue(image.getColor(x, y));
 		*///?} else {
 		return image.getColorArgb(x, y);
 		//?}
@@ -28,11 +28,17 @@ public class MapHelper {
 
 	private static void setArgb(NativeImage image, int x, int y, int color) {
 		//? if <1.21.2 {
-		/*image.setColor(x, y, color);
+		/*image.setColor(x, y, swapRedBlue(color));
 		*///?} else {
 		image.setColorArgb(x, y, color);
 		//?}
 	}
+
+	//? if <1.21.2 {
+	/*private static int swapRedBlue(int color) {
+		return color & 0xFF00FF00 | (color & 0x00FF0000) >>> 16 | (color & 0x000000FF) << 16;
+	}
+	*///?}
 
 	private static boolean isIceBlock(BlockState state) {
 		return state.isOf(Blocks.ICE) || state.isOf(Blocks.PACKED_ICE) || state.isOf(Blocks.BLUE_ICE);
@@ -40,7 +46,7 @@ public class MapHelper {
 
 	private static void paintIce(int px, int py, int dy, int color_change) {
 		int alpha = MathHelper.clamp(255 - dy * color_change, 0, 255);
-		setArgb(RacingMinimap.image, px, py, alpha << 24);
+		setArgb(RacingMinimap.image, px, py, alpha << 24 | RacingMinimap.CONFIG.main_color);
 	}
 
 	private static boolean isTransparent(BlockState state) {
@@ -196,8 +202,7 @@ public class MapHelper {
 			for (int x = 0; x < width; ++x) {
 				int color = getArgb(RacingMinimap.image, x, y);
 				int color_alpha = color >> 24 & 0xFF;
-				int color_without_alpha = color & 0xFFFFFF;
-				if (color_without_alpha != 0) {
+				if (color_alpha == 0) {
 					continue;
 				}
 				for (int dy = -2; dy <= 2; ++dy) {
@@ -218,7 +223,7 @@ public class MapHelper {
 						if (color_alpha - new_color_alpha <= color_change && new_color_alpha != 0) {
 							continue;
 						}
-						int pixel_color = color_alpha << 24 | 0xFFFFFF;
+						int pixel_color = color_alpha << 24 | RacingMinimap.CONFIG.outline_color;
 						setArgb(RacingMinimap.rounded_image, nx, ny, pixel_color);
 					}
 				}
