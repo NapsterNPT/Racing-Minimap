@@ -1,0 +1,10 @@
+plugins {
+	id "dev.kikugie.stonecutter"
+}
+stonecutter.active "1.21.4"
+
+tasks.register('buildAll') {
+	group = 'project'
+	description = 'Builds the mod for every configured Minecraft version.'
+	dependsOn stonecutter.tasks.named('build', null)
+}

@@ -18,16 +18,32 @@ import java.util.List;
 public class MapHelper {
 	private static final BlockPos.Mutable mutablePos = new BlockPos.Mutable();
 
+	private static int getArgb(NativeImage image, int x, int y) {
+		//? if <1.21.2 {
+		/*return image.getColor(x, y);
+		*///?} else {
+		return image.getColorArgb(x, y);
+		//?}
+	}
+
+	private static void setArgb(NativeImage image, int x, int y, int color) {
+		//? if <1.21.2 {
+		/*image.setColor(x, y, color);
+		*///?} else {
+		image.setColorArgb(x, y, color);
+		//?}
+	}
+
 	private static boolean isIceBlock(BlockState state) {
 		return state.isOf(Blocks.ICE) || state.isOf(Blocks.PACKED_ICE) || state.isOf(Blocks.BLUE_ICE);
 	}
 
 	private static void paintIce(int px, int py, int dy, int color_change) {
 		int alpha = MathHelper.clamp(255 - dy * color_change, 0, 255);
-		RacingMinimap.image.setColorArgb(px, py, alpha << 24);
+		setArgb(RacingMinimap.image, px, py, alpha << 24);
 	}
 
-	private static boolean isTransparent(World world, BlockState state) {
+	private static boolean isTransparent(BlockState state) {
 		return !state.isOpaque() && !state.isOf(Blocks.WATER);
 	}
 
@@ -55,7 +71,7 @@ public class MapHelper {
 					continue;
 				}
 				int color = (Math.abs(dx) >= halfWidth - 1 || Math.abs(dy) >= 3) ? stroke_color : base_color;
-				RacingMinimap.image_with_players.setColorArgb(x, y, color);
+				setArgb(RacingMinimap.image_with_players, x, y, color);
 			}
 		}
 	}
@@ -77,7 +93,7 @@ public class MapHelper {
 		int height = RacingMinimap.image_with_players.getHeight();
 		for (int y = 0; y < height; ++y) {
 			for (int x = 0; x < width; ++x) {
-				RacingMinimap.image_with_players.setColorArgb(x, y, 0);
+				setArgb(RacingMinimap.image_with_players, x, y, 0);
 			}
 		}
 		int mapX = RacingMinimap.mapBlockPos.getX();
@@ -171,14 +187,14 @@ public class MapHelper {
 		int color_change = (int) Math.ceil(255.0 / RacingMinimap.CONFIG.map_depth);
 		for (int y = 0; y < height; ++y) {
 			for (int x = 0; x < width; ++x) {
-				int color = RacingMinimap.image.getColorArgb(x, y);
-				RacingMinimap.rounded_image.setColorArgb(x, y, color);
+				int color = getArgb(RacingMinimap.image, x, y);
+				setArgb(RacingMinimap.rounded_image, x, y, color);
 			}
 		}
 		float radiusSq = radius * radius;
 		for (int y = 0; y < height; ++y) {
 			for (int x = 0; x < width; ++x) {
-				int color = RacingMinimap.image.getColorArgb(x, y);
+				int color = getArgb(RacingMinimap.image, x, y);
 				int color_alpha = color >> 24 & 0xFF;
 				int color_without_alpha = color & 0xFFFFFF;
 				if (color_without_alpha != 0) {
@@ -197,13 +213,13 @@ public class MapHelper {
 						if (distanceSquared > radiusSq) {
 							continue;
 						}
-						int new_color = RacingMinimap.rounded_image.getColorArgb(nx, ny);
+						int new_color = getArgb(RacingMinimap.rounded_image, nx, ny);
 						int new_color_alpha = new_color >> 24 & 0xFF;
 						if (color_alpha - new_color_alpha <= color_change && new_color_alpha != 0) {
 							continue;
 						}
 						int pixel_color = color_alpha << 24 | 0xFFFFFF;
-						RacingMinimap.rounded_image.setColorArgb(nx, ny, pixel_color);
+						setArgb(RacingMinimap.rounded_image, nx, ny, pixel_color);
 					}
 				}
 			}
@@ -236,15 +252,15 @@ public class MapHelper {
 					continue;
 				}
 				if (distanceSquared <= outerRadiusSq) {
-					int color = image.getColorArgb(x, y);
+					int color = getArgb(image, x, y);
 					int alpha = color >> 24 & 0xFF;
 					float distance = (float) Math.sqrt(distanceSquared);
 					int transparencyFactor = (int) ((distance - innerRadius) / fadeRange * 255.0f);
 					int newAlpha = MathHelper.clamp(alpha - transparencyFactor, 0, 255);
-					image.setColorArgb(x, y, newAlpha << 24 | color & 0xFFFFFF);
+					setArgb(image, x, y, newAlpha << 24 | color & 0xFFFFFF);
 					continue;
 				}
-				image.setColorArgb(x, y, 0);
+				setArgb(image, x, y, 0);
 			}
 		}
 	}
@@ -258,7 +274,7 @@ public class MapHelper {
 		BlockState surfaceState = world.getBlockState(mutablePos);
 		if (isIceBlock(surfaceState)) {
 			mutablePos.set(x, playerY + 1, z);
-			if (isTransparent(world, world.getBlockState(mutablePos))) {
+			if (isTransparent(world.getBlockState(mutablePos))) {
 				paintIce(px, py, 0, 0);
 				foundIceBlock = true;
 			}
@@ -273,7 +289,7 @@ public class MapHelper {
 					continue;
 				}
 				mutablePos.set(x, currentY + 1, z);
-				if (!isTransparent(world, world.getBlockState(mutablePos))) {
+				if (!isTransparent(world.getBlockState(mutablePos))) {
 					continue;
 				}
 				paintIce(px, py, dy, color_change);
@@ -291,7 +307,7 @@ public class MapHelper {
 					continue;
 				}
 				mutablePos.set(x, currentY + 1, z);
-				if (!isTransparent(world, world.getBlockState(mutablePos))) {
+				if (!isTransparent(world.getBlockState(mutablePos))) {
 					continue;
 				}
 				paintIce(px, py, dy, color_change);
@@ -301,13 +317,13 @@ public class MapHelper {
 		}
 
 		if (!foundIceBlock) {
-			RacingMinimap.image.setColorArgb(px, py, 0);
+			setArgb(RacingMinimap.image, px, py, 0);
 		}
 		return foundIceBlock;
 	}
 
 	private static void paintEmptyXZ(int px, int py) {
-		RacingMinimap.image.setColorArgb(px, py, 0);
+		setArgb(RacingMinimap.image, px, py, 0);
 	}
 
 	private static boolean analyzeSquare(World world, int playerX, int playerZ, int playerY, int chunkX, int chunkZ, int blockX, int blockZ) {
