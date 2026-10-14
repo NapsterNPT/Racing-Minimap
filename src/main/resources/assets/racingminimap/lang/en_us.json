@@ -1,6 +1,10 @@
 {
     "text.autoconfig.racingminimap.title": "racing Minimap",
 
+    "text.autoconfig.racingminimap.category.general": "General",
+    "text.autoconfig.racingminimap.category.appearance": "Appearance",
+    "text.autoconfig.racingminimap.category.performance": "Performance",
+
     "text.autoconfig.racingminimap.option.render_map": "Render Map",
     "text.autoconfig.racingminimap.option.render_out_of_boat": "Render Out of Boat",
     "text.autoconfig.racingminimap.option.map_x": "Offset Map on X Axis (%)",
@@ -10,8 +14,12 @@
     "text.autoconfig.racingminimap.option.main_color": "Main Color",
     "text.autoconfig.racingminimap.option.outline_color": "Outline Color",
     "text.autoconfig.racingminimap.option.map_depth": "Depth of the map",
+    "text.autoconfig.racingminimap.option.map_fps": "Map FPS",
 
 
     "text.autoconfig.racingminimap.option.map_depth.@Tooltip[0]": "This settings changes how many blocks should be rendered above and below the player.",
-    "text.autoconfig.racingminimap.option.map_depth.@Tooltip[1]": "This might cause lag."
+    "text.autoconfig.racingminimap.option.map_depth.@Tooltip[1]": "This might cause lag.",
+
+    "text.autoconfig.racingminimap.option.map_fps.@Tooltip[0]": "Maximum number of times per second the minimap's map is updated.",
+    "text.autoconfig.racingminimap.option.map_fps.@Tooltip[1]": "0 = unlimited"
 }

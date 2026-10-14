@@ -9,14 +9,15 @@ Disclaimer: the original mod is [Boat HUD (from F1 2023)](https://modrinth.com/m
 
 ## Features
 
-- **Live rotating map**
-- **Ice block detection**
-- **Player markers**
-- **Configurable**
+- **Live map**
+- **Block Detection**
+- **Player Markers**
+- **Customizable**
 
 ## Future stuff
 
-- **OBU support**
+- **Optimization**
+- **Full OBU support**
 - **BoatLabs color support**
 
 You can download the mod from [Modrinth](https://modrinth.com/mod/racing-minimap) or the [GitHub Repository](https://github.com/NapsterNPT/racing-minimap/releases/); any other source will be marked as unofficial.

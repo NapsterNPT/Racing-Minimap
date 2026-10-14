@@ -32,6 +32,7 @@ public class MinimapRenderer {
 	private static double previousX = 0.0;
 	private static double previousZ = 0.0;
 	private static float previousAngleMap = 0.0f;
+	private static long lastMapUpdate = 0L;
 
 	public static void render(DrawContext graphics) {
 		var client = net.minecraft.client.MinecraftClient.getInstance();
@@ -68,20 +69,25 @@ public class MinimapRenderer {
 			BlockPos currentPlayerPos = client.player.getBlockPos();
 			double playerX = client.player.getX();
 			double playerZ = client.player.getZ();
-			if (currentPlayerPos.getY() != previousY) {
-				MapHelper.blitMapToTextureY(client, currentChunkPos, currentPlayerPos);
-				previousY = currentPlayerPos.getY();
-				previousChunkPos = currentChunkPos;
-			} else if (previousChunkPos == null || !previousChunkPos.equals(currentChunkPos)) {
-				MapHelper.blitMapToTextureChunk(client, currentChunkPos, currentPlayerPos);
-				previousY = currentPlayerPos.getY();
-				previousChunkPos = currentChunkPos;
-			} else if (playerX != previousX || playerZ != previousZ) {
-				MapHelper.updateTexture(client);
-				previousX = playerX;
-				previousZ = playerZ;
+			int fps = RacingMinimap.CONFIG.map_fps;
+			long now = System.currentTimeMillis();
+			if (fps <= 0 || now - lastMapUpdate >= (long) (1000.0 / fps)) {
+				lastMapUpdate = now;
+				if (currentPlayerPos.getY() != previousY) {
+					MapHelper.blitMapToTextureY(client, currentChunkPos, currentPlayerPos);
+					previousY = currentPlayerPos.getY();
+					previousChunkPos = currentChunkPos;
+				} else if (previousChunkPos == null || !previousChunkPos.equals(currentChunkPos)) {
+					MapHelper.blitMapToTextureChunk(client, currentChunkPos, currentPlayerPos);
+					previousY = currentPlayerPos.getY();
+					previousChunkPos = currentChunkPos;
+				} else if (playerX != previousX || playerZ != previousZ) {
+					MapHelper.updateTexture(client);
+					previousX = playerX;
+					previousZ = playerZ;
+				}
+				MapHelper.updatePlayers(client);
 			}
-			MapHelper.updatePlayers(client);
 
 			scale = RacingMinimap.CONFIG.map_scale / 100.0f;
 
