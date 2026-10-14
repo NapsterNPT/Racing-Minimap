@@ -54,29 +54,31 @@ public class RacingMinimap implements ClientModInitializer {
 		});
 
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-			if (MINIMAP_TEXTURE != null) {
-				client.getTextureManager().destroyTexture(MINIMAP_TEXTURE);
-			}
-			if (MINIMAP_PLAYERS != null) {
-				client.getTextureManager().destroyTexture(MINIMAP_PLAYERS);
-			}
-			if (image != null) {
-				image.close();
-				image = null;
-			}
-			if (image_with_players != null) {
-				image_with_players.close();
-				image_with_players = null;
-			}
-			if (rounded_image != null) {
-				rounded_image.close();
-				rounded_image = null;
-			}
-			texture = null;
-			players_texture = null;
-			MINIMAP_TEXTURE = null;
-			MINIMAP_PLAYERS = null;
-			isMinimapLoaded = false;
+			client.execute(() -> {
+				if (MINIMAP_TEXTURE != null) {
+					client.getTextureManager().destroyTexture(MINIMAP_TEXTURE);
+				}
+				if (MINIMAP_PLAYERS != null) {
+					client.getTextureManager().destroyTexture(MINIMAP_PLAYERS);
+				}
+				if (image != null) {
+					image.close();
+					image = null;
+				}
+				if (image_with_players != null) {
+					image_with_players.close();
+					image_with_players = null;
+				}
+				if (rounded_image != null) {
+					rounded_image.close();
+					rounded_image = null;
+				}
+				texture = null;
+				players_texture = null;
+				MINIMAP_TEXTURE = null;
+				MINIMAP_PLAYERS = null;
+				isMinimapLoaded = false;
+			});
 		});
 	}
 }
