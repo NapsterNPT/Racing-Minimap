@@ -33,6 +33,8 @@ public class MinimapRenderer {
 	private static double previousZ = 0.0;
 	private static float previousAngleMap = 0.0f;
 	private static long lastMapUpdate = 0L;
+ 	private static double previousChunkOffsetX = 0.0;
+	private static double previousChunkOffsetZ = 0.0;
 
 	public static void render(DrawContext graphics) {
 		var client = net.minecraft.client.MinecraftClient.getInstance();
@@ -69,10 +71,14 @@ public class MinimapRenderer {
 			BlockPos currentPlayerPos = client.player.getBlockPos();
 			double playerX = client.player.getX();
 			double playerZ = client.player.getZ();
+			double chunkOffsetX = (playerX % 16.0 + 16.0) % 16.0;
+			double chunkOffsetZ = (playerZ % 16.0 + 16.0) % 16.0;
 			int fps = RacingMinimap.CONFIG.map_fps;
 			long now = System.currentTimeMillis();
 			if (fps <= 0 || now - lastMapUpdate >= (long) (1000.0 / fps)) {
 				lastMapUpdate = now;
+				previousChunkOffsetX = chunkOffsetX;
+				previousChunkOffsetZ = chunkOffsetZ;
 				if (currentPlayerPos.getY() != previousY) {
 					MapHelper.blitMapToTextureY(client, currentChunkPos, currentPlayerPos);
 					previousY = currentPlayerPos.getY();
@@ -102,10 +108,8 @@ public class MinimapRenderer {
 			pointer_map[1] = map_y + 47;
 			pointer_map[2] = POINTER_WIDTH;
 			pointer_map[3] = POINTER_HEIGHT;
-			double chunkOffsetX = (playerX % 16.0 + 16.0) % 16.0;
-			double chunkOffsetZ = (playerZ % 16.0 + 16.0) % 16.0;
 
-			renderMap(graphics, map_x + 49.5, map_y + 49.5, (float) Math.toRadians(client.player.getYaw() * -1.0f + 180.0f), chunkOffsetX, chunkOffsetZ);
+			renderMap(graphics, map_x + 49.5, map_y + 49.5, (float) Math.toRadians(client.player.getYaw() * -1.0f + 180.0f), previousChunkOffsetX, previousChunkOffsetZ);
 		}
 		//? if <1.21.5 {
 		RenderSystem.disableBlend();
