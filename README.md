@@ -18,7 +18,7 @@ Disclaimer: the original mod is [Boat HUD (from F1 2023)](https://modrinth.com/m
 
 - **Optimization**
 - **Full OBU support**
-- **BoatLabs color support**
+- **Boatlabs support**
 
 You can download the mod from [Modrinth](https://modrinth.com/mod/racing-minimap) or the [GitHub Repository](https://github.com/NapsterNPT/racing-minimap/releases/); any other source will be marked as unofficial.
 
