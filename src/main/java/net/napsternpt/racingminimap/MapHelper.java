@@ -18,6 +18,10 @@ import java.util.List;
 public class MapHelper {
 	private static final BlockPos.Mutable mutablePos = new BlockPos.Mutable();
 
+	public record PlayerMarker(String name, int spriteX, int spriteZ) {}
+
+	public static final List<PlayerMarker> playerMarkers = new ArrayList<>();
+
 	private static int getArgb(NativeImage image, int x, int y) {
 		//? if <1.21.2 {
 		/*return swapRedBlue(image.getColor(x, y));
@@ -65,6 +69,10 @@ public class MapHelper {
 		RacingMinimap.players_texture.upload();
 	}
 
+	private static boolean isGhost(PlayerEntity player) {
+		return player.getName().getString().endsWith(" Ghost");
+	}
+
 	private static void paintPlayer(int spriteX, int spriteZ, int stroke_color, int base_color, int detail_color) {
 		int width = RacingMinimap.image_with_players.getWidth();
 		int height = RacingMinimap.image_with_players.getHeight();
@@ -90,6 +98,9 @@ public class MapHelper {
 				if (player == client.player) {
 					continue;
 				}
+				if (!RacingMinimap.CONFIG.show_ghosts && isGhost(player)) {
+					continue;
+				}
 				if (player.getVehicle() instanceof BoatEntity boat && boat.getControllingPassenger() == player) {
 					playersInBoats.add(player);
 				}
@@ -102,6 +113,7 @@ public class MapHelper {
 				setArgb(RacingMinimap.image_with_players, x, y, 0);
 			}
 		}
+		playerMarkers.clear();
 		int mapX = RacingMinimap.mapBlockPos.getX();
 		int mapZ = RacingMinimap.mapBlockPos.getZ();
 		int chunkX_min = mapX + 10;
@@ -116,6 +128,7 @@ public class MapHelper {
 			}
 			int spriteX = playerX - chunkX_min + 10;
 			int spriteZ = playerZ - chunkZ_min + 10;
+			playerMarkers.add(new PlayerMarker(player.getName().getString(), spriteX, spriteZ));
 			int base_color_int = 0xFFFF0000;
 			int r = base_color_int >> 16 & 0xFF;
             int r1 = (int) (r * 0.7);

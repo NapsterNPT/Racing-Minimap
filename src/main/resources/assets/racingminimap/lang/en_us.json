@@ -4,6 +4,7 @@
     "text.autoconfig.racingminimap.category.general": "General",
     "text.autoconfig.racingminimap.category.appearance": "Appearance",
     "text.autoconfig.racingminimap.category.performance": "Performance",
+    "text.autoconfig.racingminimap.category.boatlabs": "Boatlabs",
 
     "text.autoconfig.racingminimap.option.render_map": "Render Map",
     "text.autoconfig.racingminimap.option.render_out_of_boat": "Render Out of Boat",
@@ -15,6 +16,12 @@
     "text.autoconfig.racingminimap.option.outline_color": "Outline Color",
     "text.autoconfig.racingminimap.option.map_depth": "Depth of the map",
     "text.autoconfig.racingminimap.option.map_fps": "Map FPS",
+    "text.autoconfig.racingminimap.option.show_player_nametags": "Show Player Nametags",
+    "text.autoconfig.racingminimap.option.nametag_scale": "Nametag Size (%)",
+    "text.autoconfig.racingminimap.option.nametag_anchor": "Nametag Position",
+    "text.autoconfig.racingminimap.option.nametag_anchor.TOP": "Above",
+    "text.autoconfig.racingminimap.option.nametag_anchor.BOTTOM": "Below",
+    "text.autoconfig.racingminimap.option.show_ghosts": "Show Ghosts",
 
 
     "text.autoconfig.racingminimap.option.map_depth.@Tooltip[0]": "This settings changes how many blocks should be rendered above and below the player.",

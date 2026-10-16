@@ -3,6 +3,7 @@ package net.napsternpt.racingminimap.config;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
+import me.shedaniel.clothconfig2.gui.entries.SelectionListEntry;
 import net.napsternpt.racingminimap.RacingMinimap;
 
 @Config(name = RacingMinimap.MOD_ID)
@@ -38,6 +39,26 @@ public class ModConfig implements ConfigData {
 	@ConfigEntry.ColorPicker()
 	public int outline_color = 0xFFFFFF;
 
+	@ConfigEntry.Category("appearance")
+	public boolean show_player_nametags = true;
+
+	@ConfigEntry.Category("appearance")
+	@ConfigEntry.BoundedDiscrete(min = 0, max = 200)
+	public int nametag_scale = 100;
+
+	@ConfigEntry.Category("appearance")
+	public NametagAnchor nametag_anchor = NametagAnchor.TOP;
+
+	public enum NametagAnchor implements SelectionListEntry.Translatable {
+		TOP,
+		BOTTOM;
+
+		@Override
+		public String getKey() {
+			return "text.autoconfig.racingminimap.option.nametag_anchor." + name();
+		}
+	}
+
 	@ConfigEntry.Category("performance")
 	@ConfigEntry.Gui.Tooltip(count = 2)
 	@ConfigEntry.BoundedDiscrete(min = 1, max = 32)
@@ -46,4 +67,7 @@ public class ModConfig implements ConfigData {
 	@ConfigEntry.Category("performance")
 	@ConfigEntry.Gui.Tooltip(count = 2)
 	public int map_fps = 30;
+
+	@ConfigEntry.Category("boatlabs")
+	public boolean show_ghosts = true;
 }

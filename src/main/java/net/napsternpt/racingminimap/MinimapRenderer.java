@@ -1,11 +1,15 @@
 package net.napsternpt.racingminimap;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.util.math.MathHelper;
+import net.napsternpt.racingminimap.config.ModConfig;
 //? if >=1.21.5 {
 /*import net.minecraft.client.gl.RenderPipelines;
 *///?}
@@ -167,6 +171,7 @@ public class MinimapRenderer {
 			*///?} else {
 			matrices.pop();
 			//?}
+			drawPlayerNametags(graphics, center_x, center_y, scale, interpolatedAngle, chunkOffsetX, chunkOffsetZ, texOffset);
 		}
 		//? if <1.21.2 {
 		/*RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, RacingMinimap.CONFIG.map_opacity / 100.0f);
@@ -176,6 +181,60 @@ public class MinimapRenderer {
 		//? if <1.21.2 {
 		/*RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 		*///?}
+	}
+
+	private static void drawPlayerNametags(DrawContext graphics, double center_x, double center_y, float scale, float angle, double chunkOffsetX, double chunkOffsetZ, int texOffset) {
+		ModConfig config = RacingMinimap.CONFIG;
+		if (!config.show_player_nametags || MapHelper.playerMarkers.isEmpty()) {
+			return;
+		}
+		float size = config.nametag_scale / 200.0f;
+		if (size <= 0.0f) {
+			return;
+		}
+		MinecraftClient client = MinecraftClient.getInstance();
+		TextRenderer textRenderer = client.textRenderer;
+		if (textRenderer == null) {
+			return;
+		}
+		float cos = MathHelper.cos(angle);
+		float sin = MathHelper.sin(angle);
+		boolean top = config.nametag_anchor == ModConfig.NametagAnchor.TOP;
+		double visibleRadiusSq = 45.0 * 45.0;
+		for (MapHelper.PlayerMarker marker : MapHelper.playerMarkers) {
+			double tx = marker.spriteX() - texOffset - chunkOffsetX + 8.0;
+			double tz = marker.spriteZ() - texOffset - chunkOffsetZ + 8.0;
+			double rx = tx * cos - tz * sin;
+			double rz = tx * sin + tz * cos;
+			double screenX = center_x + scale * rx;
+			double screenY = center_y + scale * rz;
+			double dx = screenX - center_x;
+			double dy = screenY - center_y;
+			if (dx * dx + dy * dy > visibleRadiusSq) {
+				continue;
+			}
+			String name = marker.name();
+			float width = textRenderer.getWidth(name) * size;
+			float height = textRenderer.fontHeight * size;
+			float gap = 4.0f;
+			float textX = (float) (screenX - width / 2.0f);
+			float textY = top ? (float) (screenY - height - gap) : (float) (screenY + gap);
+			//? if >=1.21.5 {
+			/*Matrix3x2fStack textMatrices = graphics.getMatrices();
+			textMatrices.pushMatrix();
+			textMatrices.translate(textX, textY);
+			textMatrices.scale(size, size);
+			graphics.drawText(textRenderer, name, 0, 0, 0xFFFFFF, true);
+			textMatrices.popMatrix();
+			*///?} else {
+			MatrixStack textMatrices = graphics.getMatrices();
+			textMatrices.push();
+			textMatrices.translate(textX, textY, 0.0);
+			textMatrices.scale(size, size, 1.0f);
+			graphics.drawText(textRenderer, name, 0, 0, 0xFFFFFF, true);
+			textMatrices.pop();
+			//?}
+		}
 	}
 
 	private static void drawGuiTexture(DrawContext graphics, Identifier texture, int x, int y, int width, int height, int textureWidth, int textureHeight, int color) {
