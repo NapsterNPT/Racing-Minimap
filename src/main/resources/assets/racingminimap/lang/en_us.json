@@ -1,13 +1,14 @@
 {
     "text.autoconfig.racingminimap.title": "racing Minimap",
 
-    "text.autoconfig.racingminimap.category.general": "General",
-    "text.autoconfig.racingminimap.category.appearance": "Appearance",
-    "text.autoconfig.racingminimap.category.performance": "Performance",
+    "text.autoconfig.racingminimap.category.default": "Default",
     "text.autoconfig.racingminimap.category.boatlabs": "Boatlabs",
 
+    "text.autoconfig.racingminimap.option.render_map.@PrefixText": "General",
     "text.autoconfig.racingminimap.option.render_map": "Render Map",
     "text.autoconfig.racingminimap.option.render_out_of_boat": "Render Out of Boat",
+
+    "text.autoconfig.racingminimap.option.map_x.@PrefixText": "\nAppearance",
     "text.autoconfig.racingminimap.option.map_x": "Offset Map on X Axis (%)",
     "text.autoconfig.racingminimap.option.map_y": "Offset Map on Y Axis (%)",
     "text.autoconfig.racingminimap.option.map_scale": "Map Scale (%)",
@@ -17,13 +18,15 @@
     "text.autoconfig.racingminimap.option.outline_color": "Outline Color",
     "text.autoconfig.racingminimap.option.player_color": "Player Color",
     "text.autoconfig.racingminimap.option.player_heads": "Show Player Heads",
-    "text.autoconfig.racingminimap.option.map_depth": "Depth of the map",
-    "text.autoconfig.racingminimap.option.map_fps": "Map FPS",
     "text.autoconfig.racingminimap.option.show_player_nametags": "Show Player Nametags",
     "text.autoconfig.racingminimap.option.nametag_scale": "Nametag Size (%)",
     "text.autoconfig.racingminimap.option.nametag_anchor": "Nametag Position",
     "text.autoconfig.racingminimap.option.nametag_anchor.TOP": "Above",
     "text.autoconfig.racingminimap.option.nametag_anchor.BOTTOM": "Below",
+
+    "text.autoconfig.racingminimap.option.map_depth.@PrefixText": "\nPerformance",
+    "text.autoconfig.racingminimap.option.map_depth": "Depth of the map",
+    "text.autoconfig.racingminimap.option.map_fps": "Map FPS",
     "text.autoconfig.racingminimap.option.show_ghosts": "Show Ghosts",
     "text.autoconfig.racingminimap.option.ghost_color": "Ghost Color",
     "text.autoconfig.racingminimap.option.render_silly_boxes": "Render Silly Boxes",
