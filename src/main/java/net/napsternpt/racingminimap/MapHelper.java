@@ -3,11 +3,19 @@ package net.napsternpt.racingminimap;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.vehicle.BoatEntity;
+//? if >=1.21.2 {
+import net.minecraft.entity.vehicle.AbstractBoatEntity;
+//?} else {
+/*import net.minecraft.entity.vehicle.BoatEntity;
+*///?}
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
@@ -18,9 +26,29 @@ import java.util.List;
 public class MapHelper {
 	private static final BlockPos.Mutable mutablePos = new BlockPos.Mutable();
 
-	public record PlayerMarker(String name, int spriteX, int spriteZ) {}
+	private static final float REFERENCE_SCALE = 0.45f;
+
+	public record PlayerMarker(String name, int spriteX, int spriteZ, Identifier head) {}
+
+	private record BoatPlayer(PlayerEntity player, boolean ghost) {}
 
 	public static final List<PlayerMarker> playerMarkers = new ArrayList<>();
+
+	private static int darken(int color) {
+		int a = color >>> 24;
+		int r = (int) ((color >> 16 & 0xFF) * 0.7);
+		int g = (int) ((color >> 8 & 0xFF) * 0.7);
+		int b = (int) ((color & 0xFF) * 0.7);
+		return a << 24 | r << 16 | g << 8 | b;
+	}
+
+	private static float dotZoom() {
+		float current = MinimapRenderer.scale;
+		if (current <= 0.0f) {
+			current = REFERENCE_SCALE;
+		}
+		return REFERENCE_SCALE / current;
+	}
 
 	private static int getArgb(NativeImage image, int x, int y) {
 		//? if <1.21.2 {
@@ -73,37 +101,65 @@ public class MapHelper {
 		return player.getName().getString().endsWith(" Ghost");
 	}
 
-	private static void paintPlayer(int spriteX, int spriteZ, int stroke_color, int base_color, int detail_color) {
+	private static Identifier headTexture(MinecraftClient client, PlayerEntity player) {
+		if (!(player instanceof AbstractClientPlayerEntity clientPlayer)) {
+			return null;
+		}
+		//? if >=1.21.11 {
+		/*Identifier id = clientPlayer.getSkin().body().texturePath();
+		*///?} else {
+		Identifier id = clientPlayer.getSkinTextures().texture();
+		//?}
+		if (id == null || client.getTextureManager().getTexture(id) == null) {
+			return null;
+		}
+		return id;
+	}
+
+	private static void paintPlayer(int spriteX, int spriteZ, int stroke_color, int base_color) {
 		int width = RacingMinimap.image_with_players.getWidth();
 		int height = RacingMinimap.image_with_players.getHeight();
-		for (int dy = -4; dy <= 4; ++dy) {
-			int halfWidth = (dy <= -3 || dy >= 3) ? 2 : 4;
+		float zoom = dotZoom();
+		int max = Math.max(1, Math.round(4 * zoom));
+        int halfNarrow = Math.clamp(max, 1, Math.round(2 * zoom));
+		int strokeBand = Math.max(1, Math.round(zoom));
+		int topBand = max * 3 / 4;
+		for (int dy = -max; dy <= max; ++dy) {
+			int vertical = Math.abs(dy);
+			int halfWidth = vertical >= topBand ? halfNarrow : max;
 			for (int dx = -halfWidth; dx <= halfWidth; ++dx) {
 				int x = spriteX + dx;
 				int y = spriteZ + dy;
 				if (x < 0 || x >= width || y < 0 || y >= height) {
 					continue;
 				}
-				int color = (Math.abs(dx) >= halfWidth - 1 || Math.abs(dy) >= 3) ? stroke_color : base_color;
+				int color = (Math.abs(dx) >= halfWidth - strokeBand || vertical >= topBand) ? stroke_color : base_color;
 				setArgb(RacingMinimap.image_with_players, x, y, color);
 			}
 		}
 	}
 
 	private static void renderPlayers() {
-		List<PlayerEntity> playersInBoats = new ArrayList<>();
+		List<BoatPlayer> playersInBoats = new ArrayList<>();
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (client.world != null) {
 			for (PlayerEntity player : client.world.getPlayers()) {
 				if (player == client.player) {
 					continue;
 				}
-				if (!RacingMinimap.CONFIG.show_ghosts && isGhost(player)) {
+				boolean ghost = isGhost(player);
+				if (!RacingMinimap.CONFIG.show_ghosts && ghost) {
 					continue;
 				}
-				if (player.getVehicle() instanceof BoatEntity boat && boat.getControllingPassenger() == player) {
-					playersInBoats.add(player);
+				//? if >=1.21.2 {
+				if (player.getVehicle() instanceof AbstractBoatEntity boat && boat.getControllingPassenger() == player) {
+					playersInBoats.add(new BoatPlayer(player, ghost));
 				}
+				//?} else {
+				/*if (player.getVehicle() instanceof BoatEntity boat && boat.getControllingPassenger() == player) {
+					playersInBoats.add(new BoatPlayer(player, ghost));
+				}
+				*///?}
 			}
 		}
 		int width = RacingMinimap.image_with_players.getWidth();
@@ -120,7 +176,8 @@ public class MapHelper {
 		int chunkX_max = mapX + 230;
 		int chunkZ_min = mapZ + 10;
 		int chunkZ_max = mapZ + 230;
-		for (PlayerEntity player : playersInBoats) {
+		for (BoatPlayer entry : playersInBoats) {
+			PlayerEntity player = entry.player();
 			int playerX = player.getBlockPos().getX();
 			int playerZ = player.getBlockPos().getZ();
 			if (playerX <= chunkX_min || playerX >= chunkX_max || playerZ <= chunkZ_min || playerZ >= chunkZ_max) {
@@ -128,13 +185,50 @@ public class MapHelper {
 			}
 			int spriteX = playerX - chunkX_min + 10;
 			int spriteZ = playerZ - chunkZ_min + 10;
-			playerMarkers.add(new PlayerMarker(player.getName().getString(), spriteX, spriteZ));
-			int base_color_int = 0xFFFF0000;
-			int r = base_color_int >> 16 & 0xFF;
-            int r1 = (int) (r * 0.7);
-            int b1 = 0;
-			int stroke_color = 0xFF000000 | r1 << 16 | b1;
-            paintPlayer(spriteX, spriteZ, stroke_color, base_color_int, base_color_int);
+			Identifier head = null;
+			if (RacingMinimap.CONFIG.player_heads && !entry.ghost()) {
+				head = headTexture(client, player);
+			}
+			playerMarkers.add(new PlayerMarker(player.getName().getString(), spriteX, spriteZ, head));
+			if (head == null) {
+				int base_color_int = 0xFF000000
+					| (entry.ghost() ? RacingMinimap.CONFIG.ghost_color : RacingMinimap.CONFIG.player_color);
+				int stroke_color = darken(base_color_int);
+				paintPlayer(spriteX, spriteZ, stroke_color, base_color_int);
+			}
+		}
+		if (RacingMinimap.CONFIG.render_silly_boxes && client.world != null && client.player != null) {
+			double range = RacingMinimap.render_distance * 8.0 + 16.0;
+			Box box = client.player.getBoundingBox().expand(range);
+			for (EndCrystalEntity crystal : client.world.getEntitiesByClass(EndCrystalEntity.class, box, entity -> true)) {
+				int crystalX = MathHelper.floor(crystal.getX());
+				int crystalZ = MathHelper.floor(crystal.getZ());
+				int spriteX = crystalX - chunkX_min + 10;
+				int spriteZ = crystalZ - chunkZ_min + 10;
+				paintDiamond(spriteX, spriteZ);
+			}
+		}
+	}
+
+	private static void paintDiamond(int spriteX, int spriteZ) {
+		int width = RacingMinimap.image_with_players.getWidth();
+		int height = RacingMinimap.image_with_players.getHeight();
+		int fill_color = 0xFFFF69B4;
+		int outline_color = 0xFFAD1457;
+		float zoom = dotZoom();
+		int r = Math.max(1, Math.round(3 * zoom));
+		int strokeBand = Math.max(1, Math.round(zoom));
+		for (int dy = -r; dy <= r; ++dy) {
+			int halfWidth = r - Math.abs(dy);
+			for (int dx = -halfWidth; dx <= halfWidth; ++dx) {
+				int x = spriteX + dx;
+				int y = spriteZ + dy;
+				if (x < 0 || x >= width || y < 0 || y >= height) {
+					continue;
+				}
+				int color = (Math.abs(dx) >= halfWidth - (strokeBand - 1) || Math.abs(dy) == r) ? outline_color : fill_color;
+				setArgb(RacingMinimap.image_with_players, x, y, color);
+			}
 		}
 	}
 
@@ -191,7 +285,7 @@ public class MapHelper {
 	}
 
 	private static void add_shadows_minimap(MinecraftClient client) {
-		float radius = 45.0f / MinimapRenderer.scale;
+		float radius = 45.0f * RacingMinimap.CONFIG.ring_size / 100.0f / MinimapRenderer.scale;
 		int width = RacingMinimap.rounded_image.getWidth();
 		int height = RacingMinimap.rounded_image.getHeight();
 		if (client.player == null) {
@@ -256,8 +350,9 @@ public class MapHelper {
 		double chunkOffsetZ = (playerZ % 16.0 + 16.0) % 16.0;
 		int centerX = width / 2 - 8 + (int) chunkOffsetX;
 		int centerY = height / 2 - 8 + (int) chunkOffsetZ;
-		float innerRadius = 38.0f / MinimapRenderer.scale;
-		float outerRadius = 45.0f / MinimapRenderer.scale;
+		float ringFactor = RacingMinimap.CONFIG.ring_size / 100.0f;
+		float innerRadius = 38.0f * ringFactor / MinimapRenderer.scale;
+		float outerRadius = 45.0f * ringFactor / MinimapRenderer.scale;
 		float innerRadiusSq = innerRadius * innerRadius;
 		float outerRadiusSq = outerRadius * outerRadius;
 		float fadeRange = outerRadius - innerRadius;

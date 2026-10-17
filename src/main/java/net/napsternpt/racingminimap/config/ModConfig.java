@@ -5,6 +5,7 @@ import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.clothconfig2.gui.entries.SelectionListEntry;
 import net.napsternpt.racingminimap.RacingMinimap;
+import org.jetbrains.annotations.NotNull;
 
 @Config(name = RacingMinimap.MOD_ID)
 public class ModConfig implements ConfigData {
@@ -28,6 +29,10 @@ public class ModConfig implements ConfigData {
 	public int map_scale = 45;
 
 	@ConfigEntry.Category("appearance")
+	@ConfigEntry.BoundedDiscrete(min = 25, max = 200)
+	public int ring_size = 100;
+
+	@ConfigEntry.Category("appearance")
 	@ConfigEntry.BoundedDiscrete(min = 0, max = 100)
 	public int map_opacity = 100;
 
@@ -38,6 +43,13 @@ public class ModConfig implements ConfigData {
 	@ConfigEntry.Category("appearance")
 	@ConfigEntry.ColorPicker()
 	public int outline_color = 0xFFFFFF;
+
+	@ConfigEntry.Category("appearance")
+	@ConfigEntry.ColorPicker()
+	public int player_color = 0xFF0000;
+
+	@ConfigEntry.Category("appearance")
+	public boolean player_heads = false;
 
 	@ConfigEntry.Category("appearance")
 	public boolean show_player_nametags = true;
@@ -54,7 +66,7 @@ public class ModConfig implements ConfigData {
 		BOTTOM;
 
 		@Override
-		public String getKey() {
+		public @NotNull String getKey() {
 			return "text.autoconfig.racingminimap.option.nametag_anchor." + name();
 		}
 	}
@@ -70,4 +82,11 @@ public class ModConfig implements ConfigData {
 
 	@ConfigEntry.Category("boatlabs")
 	public boolean show_ghosts = true;
+
+	@ConfigEntry.Category("boatlabs")
+	@ConfigEntry.ColorPicker()
+	public int ghost_color = 0x808080;
+
+	@ConfigEntry.Category("boatlabs")
+	public boolean render_silly_boxes = true;
 }

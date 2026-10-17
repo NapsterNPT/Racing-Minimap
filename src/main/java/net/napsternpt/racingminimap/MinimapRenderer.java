@@ -71,6 +71,8 @@ public class MinimapRenderer {
 				client.getTextureManager().registerTexture(RacingMinimap.MINIMAP_PLAYERS, RacingMinimap.players_texture);
 				RacingMinimap.isMinimapLoaded = true;
 			}
+			scale = RacingMinimap.CONFIG.map_scale / 100.0f;
+
 			ChunkPos currentChunkPos = client.player.getChunkPos();
 			BlockPos currentPlayerPos = client.player.getBlockPos();
 			double playerX = client.player.getX();
@@ -98,8 +100,6 @@ public class MinimapRenderer {
 				}
 				MapHelper.updatePlayers(client);
 			}
-
-			scale = RacingMinimap.CONFIG.map_scale / 100.0f;
 
 			int map_size = 99;
 			int map_screen_x = scaledWidth - map_size - 20;
@@ -172,6 +172,7 @@ public class MinimapRenderer {
 			matrices.pop();
 			//?}
 			drawPlayerNametags(graphics, center_x, center_y, scale, interpolatedAngle, chunkOffsetX, chunkOffsetZ, texOffset);
+			drawPlayerHeads(graphics, center_x, center_y, scale, interpolatedAngle, chunkOffsetX, chunkOffsetZ, texOffset);
 		}
 		//? if <1.21.2 {
 		/*RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, RacingMinimap.CONFIG.map_opacity / 100.0f);
@@ -200,7 +201,8 @@ public class MinimapRenderer {
 		float cos = MathHelper.cos(angle);
 		float sin = MathHelper.sin(angle);
 		boolean top = config.nametag_anchor == ModConfig.NametagAnchor.TOP;
-		double visibleRadiusSq = 45.0 * 45.0;
+		double ringRadius = 45.0 * config.ring_size / 100.0;
+		double visibleRadiusSq = ringRadius * ringRadius;
 		for (MapHelper.PlayerMarker marker : MapHelper.playerMarkers) {
 			double tx = marker.spriteX() - texOffset - chunkOffsetX + 8.0;
 			double tz = marker.spriteZ() - texOffset - chunkOffsetZ + 8.0;
@@ -235,6 +237,51 @@ public class MinimapRenderer {
 			textMatrices.pop();
 			//?}
 		}
+	}
+
+	private static void drawPlayerHeads(DrawContext graphics, double center_x, double center_y, float scale, float angle, double chunkOffsetX, double chunkOffsetZ, int texOffset) {
+		ModConfig config = RacingMinimap.CONFIG;
+		if (!config.player_heads || MapHelper.playerMarkers.isEmpty()) {
+			return;
+		}
+		float cos = MathHelper.cos(angle);
+		float sin = MathHelper.sin(angle);
+		double ringRadius = 45.0 * config.ring_size / 100.0;
+		double visibleRadiusSq = ringRadius * ringRadius;
+		int size = 8;
+		int color = (Math.round(RacingMinimap.CONFIG.map_opacity / 100.0f * 255.0f) << 24) | 0xFFFFFF;
+		for (MapHelper.PlayerMarker marker : MapHelper.playerMarkers) {
+			Identifier texture = marker.head();
+			if (texture == null) {
+				continue;
+			}
+			double tx = marker.spriteX() - texOffset - chunkOffsetX + 8.0;
+			double tz = marker.spriteZ() - texOffset - chunkOffsetZ + 8.0;
+			double rx = tx * cos - tz * sin;
+			double rz = tx * sin + tz * cos;
+			double screenX = center_x + scale * rx;
+			double screenY = center_y + scale * rz;
+			double dx = screenX - center_x;
+			double dy = screenY - center_y;
+			if (dx * dx + dy * dy > visibleRadiusSq) {
+				continue;
+			}
+			int x = (int) Math.round(screenX) - size / 2;
+			int y = (int) Math.round(screenY) - size / 2;
+			drawHead(graphics, texture, x, y, size, color);
+		}
+	}
+
+	private static void drawHead(DrawContext graphics, Identifier texture, int x, int y, int size, int color) {
+		//? if <1.21.2 {
+		/*RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, (color >>> 24) / 255.0f);
+		graphics.drawTexture(texture, x, y, 8.0F, 8.0F, size, size, 64, 64);
+		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+		*///?} elif <1.21.5 {
+		graphics.drawTexture(RenderLayer::getGuiTextured, texture, x, y, 8.0F, 8.0F, size, size, 64, 64, color);
+		//?} else {
+		/*graphics.drawTexture(RenderPipelines.GUI_TEXTURED, texture, x, y, 8.0F, 8.0F, size, size, 64, 64, color);
+		*///?}
 	}
 
 	private static void drawGuiTexture(DrawContext graphics, Identifier texture, int x, int y, int width, int height, int textureWidth, int textureHeight, int color) {
