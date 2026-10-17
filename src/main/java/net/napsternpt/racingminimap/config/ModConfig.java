@@ -89,4 +89,11 @@ public class ModConfig implements ConfigData {
 
 	@ConfigEntry.Category("boatlabs")
 	public boolean render_silly_boxes = true;
+
+	@ConfigEntry.Category("boatlabs")
+	public boolean render_ghosted_players = true;
+
+	@ConfigEntry.Category("boatlabs")
+	@ConfigEntry.ColorPicker()
+	public int ghosted_color = 0xFFA500;
 }

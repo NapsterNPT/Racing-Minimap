@@ -27,6 +27,8 @@
     "text.autoconfig.racingminimap.option.show_ghosts": "Show Ghosts",
     "text.autoconfig.racingminimap.option.ghost_color": "Ghost Color",
     "text.autoconfig.racingminimap.option.render_silly_boxes": "Render Silly Boxes",
+    "text.autoconfig.racingminimap.option.render_ghosted_players": "Render Ghosted Players",
+    "text.autoconfig.racingminimap.option.ghosted_color": "Ghosted Color",
 
 
     "text.autoconfig.racingminimap.option.map_depth.@Tooltip[0]": "This settings changes how many blocks should be rendered above and below the player.",

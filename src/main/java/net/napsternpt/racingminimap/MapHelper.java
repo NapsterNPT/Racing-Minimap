@@ -2,10 +2,12 @@ package net.napsternpt.racingminimap;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.LightningRodBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
 //? if >=1.21.2 {
@@ -197,17 +199,47 @@ public class MapHelper {
 				paintPlayer(spriteX, spriteZ, stroke_color, base_color_int);
 			}
 		}
-		if (RacingMinimap.CONFIG.render_silly_boxes && client.world != null && client.player != null) {
+		boolean renderCrystals = RacingMinimap.CONFIG.render_silly_boxes;
+		boolean renderGhosted = RacingMinimap.CONFIG.render_ghosted_players;
+		if ((renderCrystals || renderGhosted) && client.world != null && client.player != null) {
 			double range = RacingMinimap.render_distance * 8.0 + 16.0;
 			Box box = client.player.getBoundingBox().expand(range);
-			for (EndCrystalEntity crystal : client.world.getEntitiesByClass(EndCrystalEntity.class, box, entity -> true)) {
-				int crystalX = MathHelper.floor(crystal.getX());
-				int crystalZ = MathHelper.floor(crystal.getZ());
-				int spriteX = crystalX - chunkX_min + 10;
-				int spriteZ = crystalZ - chunkZ_min + 10;
-				paintDiamond(spriteX, spriteZ);
+			if (renderCrystals) {
+				for (EndCrystalEntity crystal : client.world.getEntitiesByClass(EndCrystalEntity.class, box, entity -> true)) {
+					int crystalX = MathHelper.floor(crystal.getX());
+					int crystalZ = MathHelper.floor(crystal.getZ());
+					int spriteX = crystalX - chunkX_min + 10;
+					int spriteZ = crystalZ - chunkZ_min + 10;
+					paintDiamond(spriteX, spriteZ);
+				}
+			}
+			if (renderGhosted) {
+				int base_color_int = 0xFF000000 | RacingMinimap.CONFIG.ghosted_color;
+				int stroke_color = darken(base_color_int);
+				for (DisplayEntity display : client.world.getEntitiesByClass(DisplayEntity.class, box, entity -> true)) {
+					if (!isStruckLightningRod(display)) {
+						continue;
+					}
+					int displayX = MathHelper.floor(display.getX());
+					int displayZ = MathHelper.floor(display.getZ());
+					int spriteX = displayX - chunkX_min + 10;
+					int spriteZ = displayZ - chunkZ_min + 10;
+					paintPlayer(spriteX, spriteZ, stroke_color, base_color_int);
+				}
 			}
 		}
+	}
+
+	private static boolean isStruckLightningRod(DisplayEntity display) {
+		if (display instanceof DisplayEntity.BlockDisplayEntity blockDisplay) {
+			DisplayEntity.BlockDisplayEntity.Data data = blockDisplay.getData();
+			if (data == null) {
+				return false;
+			}
+			BlockState state = data.blockState();
+			return state.isOf(Blocks.LIGHTNING_ROD) && state.get(LightningRodBlock.POWERED);
+		}
+		return false;
 	}
 
 	private static void paintDiamond(int spriteX, int spriteZ) {
